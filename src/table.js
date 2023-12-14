@@ -127,9 +127,11 @@ export default class Table {
       this.bindEvents();
     }
 
-    $('[contenteditable="true"]').filter(function() {
-      return $.trim($(this).text()) === '';
-    }).attr('contenteditable', 'false');
+    document.querySelectorAll('[contenteditable="true"]').forEach(function (element) {
+      if (element.textContent.trim() === '') {
+        element.setAttribute('contenteditable', 'false');
+      }
+    });
   }
 
   /**
