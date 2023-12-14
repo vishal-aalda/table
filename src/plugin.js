@@ -52,7 +52,7 @@ export default class TableBlock {
    * @param {object} api - Editor.js API
    * @param {boolean} readOnly - read-only mode flag
    */
-  constructor({data, config, api, readOnly}) {
+  constructor({ data, config, api, readOnly }) {
     this.api = api;
     this.readOnly = readOnly;
     this.config = config;
@@ -84,6 +84,39 @@ export default class TableBlock {
    */
   render() {
     /** creating table */
+    if (this.data?.content?.length == 0) {
+      this.data = {
+        "withHeadings": true,
+        "content": [
+          [
+            "Vital",
+            "Value",
+            "Unit"
+          ],
+          [
+            "Body Weight",
+            "",
+            "KG"
+          ],
+          [
+            "Temprature",
+            "",
+            "&#8451;C"
+          ],
+          [
+            "Heart Rate",
+            "",
+            "bpm"
+          ],
+          [
+            "Respiratory Rate",
+            "",
+            "bpm"
+          ]
+        ]
+      }
+    }
+
     this.table = new Table(this.readOnly, this.api, this.data, this.config);
 
     /** creating container around table */
@@ -190,12 +223,12 @@ export default class TableBlock {
 
     /** Get all rows from the table */
     const rows = Array.from(table.querySelectorAll('tr'));
-    
+
     /** Generate a content matrix */
     const content = rows.map((row) => {
       /** Get cells from row */
       const cells = Array.from(row.querySelectorAll('th, td'))
-      
+
       /** Return cells content */
       return cells.map((cell) => cell.innerHTML);
     });

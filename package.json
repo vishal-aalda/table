@@ -1,9 +1,9 @@
 {
-  "name": "@editorjs/table",
-  "description": "Table for Editor.js",
-  "version": "2.3.1",
+  "name": "vishal-key-vital-table",
+  "description": "Custom Table for Editor.js",
+  "version": "1.0.1",
   "license": "MIT",
-  "repository": "https://github.com/editor-js/table",
+  "repository": "https://github.com/vishal-aalda/table.git",
   "files": [
     "dist"
   ],
@@ -21,13 +21,13 @@
     "lint": "eslint -c ./.eslintrc --ext .js --fix ."
   },
   "author": {
-    "name": "CodeX Team",
-    "email": "team@ifmo.su"
+    "name": "Vishal Pradhan",
+    "email": "vishu.friends.forever@gmail.com"
   },
   "keywords": [
-    "codex",
-    "codex-editor",
+    "vishal",
     "table",
+    "key-vital",
     "editor.js",
     "editorjs"
   ],

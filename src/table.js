@@ -126,6 +126,10 @@ export default class Table {
     if (!this.readOnly) {
       this.bindEvents();
     }
+
+    $('[contenteditable="true"]').filter(function() {
+      return $.trim($(this).text()) === '';
+    }).attr('contenteditable', 'false');
   }
 
   /**
