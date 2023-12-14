@@ -73,7 +73,7 @@ export default class TableBlock {
   static get toolbox() {
     return {
       icon: IconTable,
-      title: 'Table'
+      title: 'Key-Vitals'
     };
   }
 
