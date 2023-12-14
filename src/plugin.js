@@ -101,7 +101,7 @@ export default class TableBlock {
           [
             "Temprature",
             "",
-            "&#8451;C"
+            "&#8451;"
           ],
           [
             "Heart Rate",

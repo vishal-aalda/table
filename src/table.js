@@ -126,12 +126,6 @@ export default class Table {
     if (!this.readOnly) {
       this.bindEvents();
     }
-
-    document.querySelectorAll('[contenteditable="true"]').forEach(function (element) {
-      if (element.textContent.trim() === '') {
-        element.setAttribute('contenteditable', 'false');
-      }
-    });
   }
 
   /**
@@ -325,10 +319,13 @@ export default class Table {
    * @param {number} column - cell column coordinate
    * @param {string} content - cell HTML content
    */
-  setCellContent(row, column, content) {
+  setCellContent(row, column, content, disable = false) {
     const cell = this.getCell(row, column);
 
     cell.innerHTML = content;
+    if(disable && content !== ''){
+      cell.setAttribute('contenteditable', 'false');
+    }
   }
 
   /**
@@ -533,7 +530,7 @@ export default class Table {
     if (data && data.content) {
       for (let i = 0; i < data.content.length; i++) {
         for (let j = 0; j < data.content[i].length; j++) {
-          this.setCellContent(i + 1, j + 1, data.content[i][j]);
+          this.setCellContent(i + 1, j + 1, data.content[i][j] , true);
         }
       }
     }
