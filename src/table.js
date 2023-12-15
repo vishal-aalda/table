@@ -321,10 +321,11 @@ export default class Table {
    */
   setCellContent(row, column, content, disable = false) {
     const cell = this.getCell(row, column);
-
-    cell.innerHTML = content;
-    if(row == 1 && column == 2) {
+    console.info("appending ")
+    if(row == 2 && column == 3) {
       cell.appendChild(this.getKg());
+    } else {
+      cell.innerHTML = content;
     }
     if(disable && content !== ''){
       cell.setAttribute('contenteditable', 'false');
