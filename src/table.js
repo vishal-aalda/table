@@ -166,7 +166,11 @@ export default class Table {
     this.table.addEventListener('focusin', event => this.focusInTableListener(event));
 
     this.dropDown?.weight?.cell?.addEventListener('click', (event) => {
-      this.dropDown?.weight?.cell?.appendChild(this.getKg(this.dropDown?.weight?.value))
+      const element = this.dropDown?.weight?.cell;
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      element.appendChild(this.getKg(this.dropDown?.weight?.value))
     })
   }
 
