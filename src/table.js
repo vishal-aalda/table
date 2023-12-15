@@ -323,9 +323,24 @@ export default class Table {
     const cell = this.getCell(row, column);
 
     cell.innerHTML = content;
+    if(row == 1 && column == 2) {
+      cell.innerHTML = select;
+    }
     if(disable && content !== ''){
       cell.setAttribute('contenteditable', 'false');
     }
+  }
+
+  getKg() {
+
+    const select = $.make('select');
+    ['KG', 'Gram', 'MilliGram', 'Pound', 'Ounce'].forEach(t => {
+      const option = $.make('option');
+      option.value = t.toLowerCase();
+      option.text = t;
+      select.add(option);
+    })
+    return select
   }
 
   /**
