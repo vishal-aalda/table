@@ -83,7 +83,7 @@ export default class Table {
     this.dropDown = {
       weight: {
         value: this.data?.content?.[1]?.[2] || '',
-        selector: '',
+        cell: '',
       }
     }
     /**
@@ -165,8 +165,8 @@ export default class Table {
     // Determine the position of the cell in focus
     this.table.addEventListener('focusin', event => this.focusInTableListener(event));
 
-    this.dropDown?.weight?.selector?.addEventListener('click', (event) => {
-      this.dropDown?.weight?.selector.innerHTML = this.getKg(this.dropDown?.weight?.value)
+    this.dropDown?.weight?.cell?.addEventListener('click', (event) => {
+      this.dropDown?.weight?.cell.innerHTML = this.getKg(this.dropDown?.weight?.value)
     })
   }
 
@@ -337,7 +337,7 @@ export default class Table {
     
     if(row == 2 && column == 3) {
       cell.appendChild(this.getKg());
-      this.dropDown.weight.selector = cell;
+      this.dropDown.weight.cell = cell;
     } else {
       cell.innerHTML = content;
     }
