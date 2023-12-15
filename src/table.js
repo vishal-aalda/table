@@ -78,6 +78,15 @@ export default class Table {
     };
 
     /**
+     * Creating options
+     */
+    this.dropDown = {
+      weight: {
+        value: this.data?.content?.[1]?.[2] || '',
+        selector: '',
+      }
+    }
+    /**
      * Resize table to match config/data size
      */
     this.resize();
@@ -155,6 +164,10 @@ export default class Table {
 
     // Determine the position of the cell in focus
     this.table.addEventListener('focusin', event => this.focusInTableListener(event));
+
+    this.dropDown?.weight?.selector?.addEventListener('click', (event) => {
+      this.dropDown?.weight?.selector.innerHTML = this.getKg(this.dropDown?.weight?.value)
+    })
   }
 
   /**
@@ -321,9 +334,10 @@ export default class Table {
    */
   setCellContent(row, column, content, disable = false) {
     const cell = this.getCell(row, column);
-    console.info("appending ")
+    
     if(row == 2 && column == 3) {
       cell.appendChild(this.getKg());
+      this.dropDown.weight.selector = cell;
     } else {
       cell.innerHTML = content;
     }
@@ -332,14 +346,21 @@ export default class Table {
     }
   }
 
-  getKg() {
+  getKg(selected = '') {
 
     const select = $.make('select');
     ['KG', 'Gram', 'MilliGram', 'Pound', 'Ounce'].forEach(t => {
       const option = $.make('option');
       option.value = t.toLowerCase();
+      if(t === selected){
+        option.selected =true
+      }
       option.text = t;
       select.add(option);
+    })
+    select.addEventListener('change', (e) =>{
+      console.log("EVENT ",e)
+      this.data?.content?.[1][2]  = e.target.value;
     })
     return select
   }
