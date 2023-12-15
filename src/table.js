@@ -324,7 +324,7 @@ export default class Table {
 
     cell.innerHTML = content;
     if(row == 1 && column == 2) {
-      cell.innerHTML = this.getKg();
+      cell.appendChild(this.getKg());
     }
     if(disable && content !== ''){
       cell.setAttribute('contenteditable', 'false');
