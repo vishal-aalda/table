@@ -166,7 +166,7 @@ export default class Table {
     this.table.addEventListener('focusin', event => this.focusInTableListener(event));
 
     this.dropDown?.weight?.cell?.addEventListener('click', (event) => {
-      this.dropDown?.weight?.cell.innerHTML = this.getKg(this.dropDown?.weight?.value)
+      this.dropDown?.weight?.cell?.appendChild(this.getKg(this.dropDown?.weight?.value))
     })
   }
 
@@ -359,8 +359,10 @@ export default class Table {
       select.add(option);
     })
     select.addEventListener('change', (e) =>{
-      console.log("EVENT ",e)
-      this.data?.content?.[1][2]  = e.target.value;
+      console.log("EVENT ",e);
+      if (this.data?.content?.[1]) {
+        this.data.content[1][2] = e.target.value;
+      }
     })
     return select
   }
