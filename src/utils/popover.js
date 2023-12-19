@@ -36,7 +36,8 @@ export default class Popover {
       itemHidden: 'tc-popover__item--hidden',
       itemConfirmState: 'tc-popover__item--confirm',
       itemIcon: 'tc-popover__item-icon',
-      itemLabel: 'tc-popover__item-label'
+      itemLabel: 'tc-popover__item-label',
+      searchItem: 'tc-popover__search',
     };
   }
 
@@ -47,24 +48,17 @@ export default class Popover {
    */
   render() {
     this.wrapper = $.make('div', Popover.CSS.popover);
-
-    this.items.forEach((item, index) => {
-      const itemEl = $.make('div', Popover.CSS.item);
-      const icon = $.make('div', Popover.CSS.itemIcon, {
-        innerHTML: item.icon
-      });
-      const label = $.make('div', Popover.CSS.itemLabel, {
-        textContent: item.label
-      });
-
-      itemEl.dataset.index = index;
-
-      itemEl.appendChild(icon);
-      itemEl.appendChild(label);
-
-      this.wrapper.appendChild(itemEl);
-      this.itemEls.push(itemEl);
-    });
+    const itemEl = $.make('input', Popover.CSS.searchItem);
+    itemEl.placeHolder = 'Search....';
+    itemEl.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      const inputValue = e.target.value.trim();
+      const escapedValue = inputValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const reg = new RegExp(`\\b${escapedValue}\\b`, 'i');
+      this.renderItems(this.items.filter(item => reg.test(item.label)));
+  });
+    this.wrapper.appendChild(itemEl);
+    this.renderItems(this.items);
 
     /**
      * Delegate click
@@ -74,6 +68,36 @@ export default class Popover {
     });
 
     return this.wrapper;
+  }
+
+  renderItems(items) {
+    const elements = this.wrapper.querySelectorAll('.' + Popover.CSS.item)
+    elements.forEach(function (element) {
+      element.parentNode.removeChild(element);
+      element.removeEventListener('click', ()=>{});
+    });
+    items.forEach((item, index) => {
+      const itemEl = $.make('div', Popover.CSS.item);
+      const icon = $.make('div', Popover.CSS.itemIcon, {
+        innerHTML: item.icon
+      });
+      const label = $.make('div', Popover.CSS.itemLabel, {
+        textContent: item.label
+      });
+
+      
+      itemEl.dataset.index = index;
+      
+      if(item.content){
+        itemEl.appendChild(item.content)
+      }else{
+        itemEl.appendChild(icon);
+        itemEl.appendChild(label);  
+      }
+
+      this.wrapper.appendChild(itemEl);
+      this.itemEls.push(itemEl);
+    });
   }
 
   /**

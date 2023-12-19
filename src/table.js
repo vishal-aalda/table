@@ -1,5 +1,6 @@
 import Toolbox from './toolbox';
 import * as $ from './utils/dom';
+import Popover from './utils/popover';
 import throttled from './utils/throttled';
 
 import {
@@ -13,7 +14,7 @@ import {
 
 const CSS = {
   wrapper: 'tc-wrap',
-  wrapperReadOnly: 'tc-wrap--readonly',
+  wrapperReadOnly: 'vtc-wrap--readonly',
   table: 'tc-table',
   row: 'tc-row',
   withHeadings: 'tc-table--heading',
@@ -48,12 +49,13 @@ export default class Table {
      */
     this.wrapper = null;
     this.table = null;
-
+    console.log(" GETTING DATA ", this.data.content, data.content)
     /**
      * Toolbox for managing of columns
-     */
-    this.toolboxColumn = this.createColumnToolbox();
+    */
+    // this.toolboxColumn = this.createColumnToolbox();
     this.toolboxRow = this.createRowToolbox();
+    // this.toolBoxCell = this.createCellToolbox();
 
     /**
      * Create table and wrapper elements
@@ -82,9 +84,19 @@ export default class Table {
      */
     this.dropDown = {
       weight: {
-        value: this.data?.content?.[1]?.[2] || '',
+        value: this.data?.content?.[1]?.[2] || 'kg',
+        options: ['Kg', 'Gram', 'Ounce', 'Pound'],
         cell: '',
-      }
+        row: 1,
+        col: 2
+      },
+      temprature: {
+        value: this.data?.content?.[2]?.[2] || 'C',
+        options: ['C', 'F'],
+        cell: '',
+        row: 2,
+        col: 2
+      },
     }
     /**
      * Resize table to match config/data size
@@ -117,19 +129,19 @@ export default class Table {
         this.hideToolboxes();
       }
 
-      const clickedOnAddRowButton = event.target.closest(`.${CSS.addRow}`);
-      const clickedOnAddColumnButton = event.target.closest(`.${CSS.addColumn}`);
+      // const clickedOnAddRowButton = event.target.closest(`.${CSS.addRow}`);
+      // const clickedOnAddColumnButton = event.target.closest(`.${CSS.addColumn}`);
 
       /**
        * Also, check if clicked in current table, not other (because documentClicked bound to the whole document)
        */
-      if (clickedOnAddRowButton && clickedOnAddRowButton.parentNode === this.wrapper) {
-        this.addRow(undefined, true);
-        this.hideToolboxes();
-      } else if (clickedOnAddColumnButton && clickedOnAddColumnButton.parentNode === this.wrapper) {
-        this.addColumn(undefined, true);
-        this.hideToolboxes();
-      }
+      // if (clickedOnAddRowButton && clickedOnAddRowButton.parentNode === this.wrapper) {
+      //   this.addRow(undefined, true);
+      //   this.hideToolboxes();
+      // } else if (clickedOnAddColumnButton && clickedOnAddColumnButton.parentNode === this.wrapper) {
+      //   this.addColumn(undefined, true);
+      //   this.hideToolboxes();
+      // }
     };
 
     if (!this.readOnly) {
@@ -165,13 +177,60 @@ export default class Table {
     // Determine the position of the cell in focus
     this.table.addEventListener('focusin', event => this.focusInTableListener(event));
 
-    this.dropDown?.weight?.cell?.addEventListener('click', (event) => {
-      const element = this.dropDown?.weight?.cell;
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
-      element.appendChild(this.getKg(this.dropDown?.weight?.value))
+    Object.values(this.dropDown).map((e) => {
+
+      e?.cell?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const element = e?.cell;
+
+        while (element.firstChild) {
+          element.firstChild.removeEventListener('click', () => { })
+          element.firstChild.removeEventListener('change', () => { })
+          element.removeChild(element.firstChild);
+        }
+
+        element.appendChild(this.getOptions(e))
+        // this.updateCellToolboxesPosition()
+      })
+
+      e?.cell?.addEventListener('blur', (event) => {
+        const that = this;
+        setTimeout(function () {
+          const element = e?.cell;
+          if (document.activeElement !== element) {
+            element.appendChild(that.getOptions(e))
+          }
+        }, 100);
+      })
     })
+  }
+  /**
+    * Configures and creates the toolbox for manipulating with columns
+    *
+    * @returns {Toolbox}
+    */
+  createCellToolbox() {
+    return new Toolbox({
+      api: this.api,
+      cssModifier: 'column',
+      items: [
+        {
+          label: this.api.i18n.t('Select unit'),
+          icon: IconDirectionLeftDown,
+          onClick: () => {
+            this.hideCellToolBoxes();
+          },
+          content: this.getKg() //this was before now we don't need it.
+        },
+      ],
+      onOpen: () => {
+        this.selectColumn(this.hoveredColumn);
+        this.hideRowToolbox();
+      },
+      onClose: () => {
+        this.unselectColumn();
+      }
+    });
   }
 
   /**
@@ -234,21 +293,31 @@ export default class Table {
       cssModifier: 'row',
       items: [
         {
-          label: this.api.i18n.t('Add row above'),
-          icon: IconDirectionUpRight,
+          label: this.api.i18n.t('Add Extra Vitals'),
+          icon: IconDirectionLeftDown,
           onClick: () => {
-            this.addRow(this.selectedRow, true);
+            this.data.content.push(['Some Extra vital', '', 'KG']);
+            this.addRow(this.selectRow, true)
+            this.fill();
             this.hideToolboxes();
           }
         },
-        {
-          label: this.api.i18n.t('Add row below'),
-          icon: IconDirectionDownRight,
-          onClick: () => {
-            this.addRow(this.selectedRow + 1, true);
-            this.hideToolboxes();
-          }
-        },
+        // {
+        //   label: this.api.i18n.t('Add row above'),
+        //   icon: IconDirectionUpRight,
+        //   onClick: () => {
+        //     this.addRow(this.selectedRow, true);
+        //     this.hideToolboxes();
+        //   }
+        // },
+        // {
+        //   label: this.api.i18n.t('Add row below'),
+        //   icon: IconDirectionDownRight,
+        //   onClick: () => {
+        //     this.addRow(this.selectedRow + 1, true);
+        //     this.hideToolboxes();
+        //   }
+        // },
         {
           label: this.api.i18n.t('Delete row'),
           icon: IconCross,
@@ -338,35 +407,44 @@ export default class Table {
    */
   setCellContent(row, column, content, disable = false) {
     const cell = this.getCell(row, column);
-    
-    if(row == 2 && column == 3) {
-      cell.appendChild(this.getKg());
-      this.dropDown.weight.cell = cell;
-    } else {
-      cell.innerHTML = content;
-    }
-    if(disable && content !== ''){
+    cell.innerHTML = content;
+
+    Object.values(this.dropDown).map(e => {
+      if (row - 1 == e.row && column - 1 == e.col) {
+        cell.innerHTML = content;
+        e.cell = cell;
+      }
+    })
+
+    if (disable && content !== '') {
       cell.setAttribute('contenteditable', 'false');
     }
   }
 
-  getKg(selected = '') {
+  getOptions(element) {
 
     const select = $.make('select');
-    ['KG', 'Gram', 'MilliGram', 'Pound', 'Ounce'].forEach(t => {
+    element.options.forEach(t => {
       const option = $.make('option');
       option.value = t.toLowerCase();
-      if(t === selected){
-        option.selected =true
+      select.add(option);
+
+      if (t.toLowerCase() == element.value.toLocaleLowerCase()) {
+        option.selected = true
       }
       option.text = t;
-      select.add(option);
     })
-    select.addEventListener('change', (e) =>{
-      console.log("EVENT ",e);
-      if (this.data?.content?.[1]) {
-        this.data.content[1][2] = e.target.value;
-      }
+
+    select.addEventListener('click', e => {
+      e.stopPropagation()
+    })
+
+    select.addEventListener('change', (e) => {
+      e.stopPropagation();
+      this.data.content[element?.row][element?.col] = e.target.value;
+      element.value = e.target.value;
+      element.cell.innerHTML = e.target.value;
+
     })
     return select
   }
@@ -499,7 +577,8 @@ export default class Table {
     }
 
     this.wrapper.appendChild(this.toolboxRow.element);
-    this.wrapper.appendChild(this.toolboxColumn.element);
+    // this.wrapper.appendChild(this.toolboxColumn.element);
+    // this.wrapper.appendChild(this.toolBoxCell.element);
     this.wrapper.appendChild(this.table);
 
     if (!this.readOnly) {
@@ -510,8 +589,8 @@ export default class Table {
         innerHTML: IconPlus
       });
 
-      this.wrapper.appendChild(addColumnButton);
-      this.wrapper.appendChild(addRowButton);
+      // this.wrapper.appendChild(addColumnButton);
+      // this.wrapper.appendChild(addRowButton);
     }
   }
 
@@ -552,7 +631,7 @@ export default class Table {
    */
   resize() {
     const { rows, cols } = this.computeInitialSize();
-
+    console.log(" ROWS ", rows, " COLS ", cols)
     for (let i = 0; i < rows; i++) {
       this.addRow();
     }
@@ -569,11 +648,11 @@ export default class Table {
    */
   fill() {
     const data = this.data;
-
+    console.log("FILLING DATA ", data.content)
     if (data && data.content) {
       for (let i = 0; i < data.content.length; i++) {
         for (let j = 0; j < data.content[i].length; j++) {
-          this.setCellContent(i + 1, j + 1, data.content[i][j] , true);
+          this.setCellContent(i + 1, j + 1, data.content[i][j], true);
         }
       }
     }
@@ -628,6 +707,7 @@ export default class Table {
    * @returns {boolean}
    */
   get isColumnMenuShowing() {
+    return false;//permanently disabling
     return this.selectedColumn !== 0;
   }
 
@@ -712,6 +792,12 @@ export default class Table {
     this.updateToolboxesPosition();
   }
 
+  hideCellToolBoxes() {
+    this.unselectRow();
+    this.unselectColumn();
+    this.toolBoxCell.hide();
+    this.updateToolboxesPosition();
+  }
   /**
    * Unselect row, close toolbox
    *
@@ -728,8 +814,7 @@ export default class Table {
    */
   hideColumnToolbox() {
     this.unselectColumn();
-
-    this.toolboxColumn.hide();
+    // this.toolboxColumn.hide();
   }
 
   /**
@@ -761,7 +846,33 @@ export default class Table {
   updateToolboxesPosition(row = this.hoveredRow, column = this.hoveredColumn) {
     if (!this.isColumnMenuShowing) {
       if (column > 0 && column <= this.numberOfColumns) { // not sure this statement is needed. Maybe it should be fixed in getHoveredCell()
-        this.toolboxColumn.show(() => {
+        // this.toolboxColumn.show(() => {
+        //   return {
+        //     left: `calc((100% - var(--cell-size)) / (${this.numberOfColumns} * 2) * (1 + (${column} - 1) * 2))`
+        //   };
+        // });
+      }
+    }
+
+    if (!this.isRowMenuShowing) {
+      if (row > 0 && row <= this.numberOfRows) { // not sure this statement is needed. Maybe it should be fixed in getHoveredCell()
+        this.toolboxRow.show(() => {
+          const hoveredRowElement = this.getRow(row);
+          const { fromTopBorder } = $.getRelativeCoordsOfTwoElems(this.table, hoveredRowElement);
+          const { height } = hoveredRowElement.getBoundingClientRect();
+
+          return {
+            top: `${Math.ceil(fromTopBorder + height / 2)}px`
+          };
+        });
+      }
+    }
+  }
+
+  updateCellToolboxesPosition(row = this.hoveredRow, column = this.hoveredColumn) {
+    if (!this.isColumnMenuShowing) {
+      if (column > 0 && column <= this.numberOfColumns) { // not sure this statement is needed. Maybe it should be fixed in getHoveredCell()
+        this.toolBoxCell.show(() => {
           return {
             left: `calc((100% - var(--cell-size)) / (${this.numberOfColumns} * 2) * (1 + (${column} - 1) * 2))`
           };
@@ -771,7 +882,7 @@ export default class Table {
 
     if (!this.isRowMenuShowing) {
       if (row > 0 && row <= this.numberOfRows) { // not sure this statement is needed. Maybe it should be fixed in getHoveredCell()
-        this.toolboxRow.show(() => {
+        this.toolBoxCell.show(() => {
           const hoveredRowElement = this.getRow(row);
           const { fromTopBorder } = $.getRelativeCoordsOfTwoElems(this.table, hoveredRowElement);
           const { height } = hoveredRowElement.getBoundingClientRect();
@@ -985,6 +1096,12 @@ export default class Table {
       }
 
       data.push(cells.map(cell => cell.innerHTML));
+    }
+    for (const key in this.dropDown) {
+      if (Object.hasOwnProperty.call(this.dropDown, key)) {
+        const element = this.dropDown[key];
+        data[element?.row][element?.col] = element?.value;
+      }
     }
 
     return data;

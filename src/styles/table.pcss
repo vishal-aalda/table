@@ -17,7 +17,8 @@
   margin-top: var(--toolbox-icon-size);
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: calc(100% - var(--cell-size)) var(--cell-size);
+  grid-template-columns: calc(100% - var(--cell-size));
+  grid-template-areas: "table"; 
 
   &--readonly {
     grid-template-columns: 100% var(--cell-size);

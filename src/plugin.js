@@ -60,30 +60,6 @@ export default class TableBlock {
       withHeadings: this.getConfig('withHeadings', false, data),
       content: data && data.content ? data.content : []
     };
-    this.table = null;
-  }
-
-  /**
-   * Get Tool toolbox settings
-   * icon - Tool icon's SVG
-   * title - title to show in toolbox
-   *
-   * @returns {{icon: string, title: string}}
-   */
-  static get toolbox() {
-    return {
-      icon: IconTable,
-      title: 'Key-Vitals'
-    };
-  }
-
-  /**
-   * Return Tool's view
-   *
-   * @returns {HTMLDivElement}
-   */
-  render() {
-    /** creating table */
     if (this.data?.content?.length == 0) {
       this.data = {
         "withHeadings": true,
@@ -116,7 +92,33 @@ export default class TableBlock {
         ]
       }
     }
+    this.table = null;
+  }
 
+  /**
+   * Get Tool toolbox settings
+   * icon - Tool icon's SVG
+   * title - title to show in toolbox
+   *
+   * @returns {{icon: string, title: string}}
+   */
+  static get toolbox() {
+    return {
+      icon: IconTable,
+      title: 'Key-Vitals'
+    };
+  }
+
+  /**
+   * Return Tool's view
+   *
+   * @returns {HTMLDivElement}
+   */
+  render() {
+    /** creating table */
+    console.log("PLUGIN RENDERED")
+    console.log("|||||||||||||||")
+    console.log("|||||||||||||||")
     this.table = new Table(this.readOnly, this.api, this.data, this.config);
 
     /** creating container around table */
