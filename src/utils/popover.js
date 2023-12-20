@@ -17,7 +17,7 @@ export default class Popover {
    * @param {object} options - constructor options
    * @param {PopoverItem[]} options.items - constructor options
    */
-  constructor({items}) {
+  constructor({ items }) {
     this.items = items;
     this.wrapper = undefined;
     this.itemEls = [];
@@ -46,6 +46,22 @@ export default class Popover {
    *
    * @returns {Element}
    */
+  findMatchingItem(input, itemList) {
+    const regex = new RegExp(input.split('').join('.*?'), 'i');
+
+    const matches = itemList.filter(item => {
+      const lowercaseItem = item.label.toLowerCase();
+      return regex.test(lowercaseItem);
+    });
+
+    return matches;
+  }
+
+  /**
+   * Returns the popover element
+   *
+   * @returns {Element}
+   */
   render() {
     this.wrapper = $.make('div', Popover.CSS.popover);
     const itemEl = $.make('input', Popover.CSS.searchItem);
@@ -54,9 +70,8 @@ export default class Popover {
       e.stopPropagation();
       const inputValue = e.target.value.trim();
       const escapedValue = inputValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const reg = new RegExp(`\\b${escapedValue}\\b`, 'i');
-      this.renderItems(this.items.filter(item => reg.test(item.label)));
-  });
+      this.renderItems(this.findMatchingItem(escapedValue, this.items));
+    });
     this.wrapper.appendChild(itemEl);
     this.renderItems(this.items);
 
@@ -74,7 +89,7 @@ export default class Popover {
     const elements = this.wrapper.querySelectorAll('.' + Popover.CSS.item)
     elements.forEach(function (element) {
       element.parentNode.removeChild(element);
-      element.removeEventListener('click', ()=>{});
+      element.removeEventListener('click', () => { });
     });
     items.forEach((item, index) => {
       const itemEl = $.make('div', Popover.CSS.item);
@@ -85,14 +100,14 @@ export default class Popover {
         textContent: item.label
       });
 
-      
+
       itemEl.dataset.index = index;
-      
-      if(item.content){
+
+      if (item.content) {
         itemEl.appendChild(item.content)
-      }else{
+      } else {
         itemEl.appendChild(icon);
-        itemEl.appendChild(label);  
+        itemEl.appendChild(label);
       }
 
       this.wrapper.appendChild(itemEl);

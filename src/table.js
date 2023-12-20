@@ -49,7 +49,6 @@ export default class Table {
      */
     this.wrapper = null;
     this.table = null;
-    console.log(" GETTING DATA ", this.data.content, data.content)
     /**
      * Toolbox for managing of columns
     */
@@ -101,7 +100,15 @@ export default class Table {
     /**
      * Resize table to match config/data size
      */
+
     this.resize();
+
+    this.init();
+  }
+
+  init(){
+
+    
 
     /**
      * Fill the table with data
@@ -296,10 +303,18 @@ export default class Table {
           label: this.api.i18n.t('Add Extra Vitals'),
           icon: IconDirectionLeftDown,
           onClick: () => {
+            this.dropDown['extra'] = {
+              value: 'kg',
+              options: ['Kg', 'Gram', 'Ounce', 'Pound'],
+              cell: '',
+              row: this.data.content.length,
+              col: 2
+            }
             this.data.content.push(['Some Extra vital', '', 'KG']);
             this.addRow(this.selectRow, true)
-            this.fill();
             this.hideToolboxes();
+            this.init()
+            // this.fill();
           }
         },
         // {
@@ -406,6 +421,7 @@ export default class Table {
    * @param {string} content - cell HTML content
    */
   setCellContent(row, column, content, disable = false) {
+    console.log("setCellContent",{ row, column, content, disable})
     const cell = this.getCell(row, column);
     cell.innerHTML = content;
 
