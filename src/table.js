@@ -106,9 +106,7 @@ export default class Table {
     this.init();
   }
 
-  init(){
-
-    
+  init() {
 
     /**
      * Fill the table with data
@@ -186,6 +184,7 @@ export default class Table {
 
     Object.values(this.dropDown).map((e) => {
 
+      if(e.cell == '') return;
       e?.cell?.addEventListener('click', (event) => {
         event.stopPropagation();
         const element = e?.cell;
@@ -236,7 +235,8 @@ export default class Table {
       },
       onClose: () => {
         this.unselectColumn();
-      }
+      },
+      table: this
     });
   }
 
@@ -285,7 +285,8 @@ export default class Table {
       },
       onClose: () => {
         this.unselectColumn();
-      }
+      },
+      table:this
     });
   }
 
@@ -298,6 +299,7 @@ export default class Table {
     return new Toolbox({
       api: this.api,
       cssModifier: 'row',
+      table: this,
       items: [
         {
           label: this.api.i18n.t('Add Extra Vitals'),
@@ -313,9 +315,8 @@ export default class Table {
             this.data.content.push(['Some Extra vital', '', 'KG']);
             this.addRow(this.selectRow, true)
             this.hideToolboxes();
-            this.init()
-            // this.fill();
-          }
+            this.fill();
+          },
         },
         // {
         //   label: this.api.i18n.t('Add row above'),
@@ -352,9 +353,11 @@ export default class Table {
       },
       onClose: () => {
         this.unselectRow();
-      }
+      },
     });
   }
+
+  
 
   /**
    * When you press enter it moves the cursor down to the next row
@@ -421,7 +424,6 @@ export default class Table {
    * @param {string} content - cell HTML content
    */
   setCellContent(row, column, content, disable = false) {
-    console.log("setCellContent",{ row, column, content, disable})
     const cell = this.getCell(row, column);
     cell.innerHTML = content;
 
@@ -481,14 +483,15 @@ export default class Table {
     for (let rowIndex = 1; rowIndex <= this.numberOfRows; rowIndex++) {
       let cell;
       const cellElem = this.createCell();
-
+      cellElem.setAttribute('row', rowIndex)
       if (columnIndex > 0 && columnIndex <= numberOfColumns) {
         cell = this.getCell(rowIndex, columnIndex);
-
+        
         $.insertBefore(cellElem, cell);
       } else {
         cell = this.getRow(rowIndex).appendChild(cellElem);
       }
+      cell.childNodes.forEach((e, k) => e.setAttribute('col', k))
 
       /**
        * Autofocus first cell
@@ -647,7 +650,6 @@ export default class Table {
    */
   resize() {
     const { rows, cols } = this.computeInitialSize();
-    console.log(" ROWS ", rows, " COLS ", cols)
     for (let i = 0; i < rows; i++) {
       this.addRow();
     }
@@ -664,7 +666,6 @@ export default class Table {
    */
   fill() {
     const data = this.data;
-    console.log("FILLING DATA ", data.content)
     if (data && data.content) {
       for (let i = 0; i < data.content.length; i++) {
         for (let j = 0; j < data.content[i].length; j++) {
@@ -683,7 +684,6 @@ export default class Table {
   fillRow(row, numberOfColumns) {
     for (let i = 1; i <= numberOfColumns; i++) {
       const newCell = this.createCell();
-
       row.appendChild(newCell);
     }
   }
@@ -1101,22 +1101,21 @@ export default class Table {
    */
   getData() {
     const data = [];
-
     for (let i = 1; i <= this.numberOfRows; i++) {
       const row = this.table.querySelector(`.${CSS.row}:nth-child(${i})`);
       const cells = Array.from(row.querySelectorAll(`.${CSS.cell}`));
       const isEmptyRow = cells.every(cell => !cell.textContent.trim());
-
       if (isEmptyRow) {
         continue;
       }
-
       data.push(cells.map(cell => cell.innerHTML));
     }
     for (const key in this.dropDown) {
       if (Object.hasOwnProperty.call(this.dropDown, key)) {
         const element = this.dropDown[key];
-        data[element?.row][element?.col] = element?.value;
+        if('row' in element && 'col' in element && !isNaN(element.row) && !isNaN(element.col))
+          if(!(element.row in data)) data[element?.row] = ['', '', ''];
+          data[element?.row][element?.col] = element?.value;
       }
     }
 

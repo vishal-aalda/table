@@ -1,5 +1,5 @@
 import * as $ from './dom';
-
+import { IconDirectionLeftDown } from '@codexteam/icons';
 /**
  * @typedef {object} PopoverItem
  * @property {string} label - button text
@@ -17,10 +17,12 @@ export default class Popover {
    * @param {object} options - constructor options
    * @param {PopoverItem[]} options.items - constructor options
    */
-  constructor({ items }) {
+  constructor({ items, table }) {
     this.items = items;
     this.wrapper = undefined;
     this.itemEls = [];
+    this.interval = null;
+    this.table = table;
   }
 
   /**
@@ -39,6 +41,51 @@ export default class Popover {
       itemLabel: 'tc-popover__item-label',
       searchItem: 'tc-popover__search',
     };
+  }
+
+  async getData() {
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", "ApiKey bDlRVWhvd0JlUGYtTlVUSDloQno6Rld4Z2Rld1dUdDZ4N0k3YWxjeW5wZw==");
+    myHeaders.append("Content-Type", "application/json");
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    const result = await fetch("https://dummyjson.com/products")
+      .then(response => response.json())
+      .catch(error => console.log('error', error));
+
+    const arr = this.items.slice(0, 2)
+    const that = this;
+    result.products.map(product => {
+      arr.push({
+        label: product.title,
+        icon: IconDirectionLeftDown,
+        confirmationRequired: false,
+        onClick: () => {
+
+          const row = this.table?.data?.content.length;
+          this.table.data.content = this.table?.getData();
+          this.table.dropDown[product.title] = {
+            value: product.title,
+            options: ['Kg', 'Gram', 'Ounce', 'Pound'],
+            cell:'',
+            col: 2,
+            row
+          }
+          this.table?.data.content.push([product.title, '', product.category]);
+          this.table?.addRow(this.table?.selectRow, true);
+          this.table?.fill();
+          this.table?.hideToolboxes();
+          this.table?.bindEvents()
+
+        }
+      })
+    })
+    return arr;
   }
 
   /**
@@ -70,7 +117,13 @@ export default class Popover {
       e.stopPropagation();
       const inputValue = e.target.value.trim();
       const escapedValue = inputValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      this.renderItems(this.findMatchingItem(escapedValue, this.items));
+      // this.renderItems(this.findMatchingItem(escapedValue, this.items));
+      clearTimeout(this.interval);
+      this.interval = setTimeout(() => {
+        this.getData().then(item => {
+          this.renderItems(item)
+        })
+      }, 500)
     });
     this.wrapper.appendChild(itemEl);
     this.renderItems(this.items);
@@ -86,6 +139,7 @@ export default class Popover {
   }
 
   renderItems(items) {
+    this.items = items;
     const elements = this.wrapper.querySelectorAll('.' + Popover.CSS.item)
     elements.forEach(function (element) {
       element.parentNode.removeChild(element);
@@ -123,10 +177,9 @@ export default class Popover {
    */
   popoverClicked(event) {
     const clickedItem = event.target.closest(`.${Popover.CSS.item}`);
-
     /**
      * Clicks outside or between item
-     */
+    */
     if (!clickedItem) {
       return;
     }
@@ -134,7 +187,7 @@ export default class Popover {
     const clickedItemIndex = clickedItem.dataset.index;
     const item = this.items[clickedItemIndex];
 
-    if (item.confirmationRequired && !this.hasConfirmationState(clickedItem)) {
+    if (item?.confirmationRequired && !this.hasConfirmationState(clickedItem)) {
       this.setConfirmationState(clickedItem);
 
       return;

@@ -20,13 +20,13 @@ export default class Toolbox {
    * @param {function} onClose - callback fired when the Popover is closing
    * @param {string} [cssModifier] - the modifier for the Toolbox. Allows to add some specific styles.
    */
-  constructor({ api, items, onOpen, onClose, cssModifier = "" }) {
+  constructor({ api, items, onOpen, onClose, cssModifier = "", table }) {
     this.api = api;
-
     this.items = items;
     this.onOpen = onOpen;
     this.onClose = onClose;
     this.cssModifier = cssModifier;
+    this.table = table;
 
     this.popover = null;
     this.wrapper = this.createToolbox();
@@ -96,6 +96,7 @@ export default class Toolbox {
   createPopover() {
     this.popover = new Popover({
       items: this.items,
+      table: this.table
     });
 
     return this.popover.render();

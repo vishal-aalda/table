@@ -44,6 +44,24 @@ export default class TableBlock {
     return true;
   }
 
+  async getData() {
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", "ApiKey bDlRVWhvd0JlUGYtTlVUSDloQno6Rld4Z2Rld1dUdDZ4N0k3YWxjeW5wZw==");
+    myHeaders.append("Content-Type", "application/json");
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    const result = await fetch("https://dummyjson.com/products")
+      .then(response => response.text())
+      .catch(error => console.log('error', error));
+
+    // this.render()
+  }
+
   /**
    * Render plugin`s main Element and fill it with saved data
    *
@@ -116,9 +134,9 @@ export default class TableBlock {
    */
   render() {
     /** creating table */
-    console.log("PLUGIN RENDERED")
-    console.log("|||||||||||||||")
-    console.log("|||||||||||||||")
+    console.log("KEY VITAL PLUGIN RENDERED")
+    console.log("|||||||||||||||||||||||||")
+    console.log("|||||||||||||||||||||||||")
     this.table = new Table(this.readOnly, this.api, this.data, this.config);
 
     /** creating container around table */
