@@ -6,3 +6,4 @@ postcss.config.js
 vite.config.js
 test.html
 yarn.lock
+.env

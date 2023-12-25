@@ -1,7 +1,7 @@
 {
-  "name": "vishal-key-vital-table",
-  "description": "Custom Table for Editor.js",
-  "version": "1.0.13",
+  "name": "aalda-key-vital-plugin",
+  "description": "Key vital plugin for Editor.js",
+  "version": "1.0.0",
   "license": "MIT",
   "repository": "https://github.com/vishal-aalda/table.git",
   "files": [
